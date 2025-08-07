@@ -53,4 +53,11 @@ public class Combattant {
     public void setTitres(String[] titres) {
         this.titres = titres;
     }
+
+    public void updateRecord(boolean winner, boolean defeat) {
+
+    }
+
+    public void addTitle(String titre) {
+    }
 }

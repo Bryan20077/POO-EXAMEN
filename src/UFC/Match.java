@@ -1,48 +1,91 @@
 package UFC;
 
+import java.time.LocalDateTime;
+import java.util.Objects;
+
+
 public class Match {
-    private String id;
-    private String date;
-    private String endroit;
-    private Combattant combattant1;
-    private Combattant combattant2;
+    private final String id;
+    private final LocalDateTime date;
+    private final String location;
+    private final TypeDeMatch type;
+    private final Combattant fighter1;
+    private final Combattant fighter2;
+    private int fighter1Points;
+    private int fighter2Points;
+    private boolean isFinished;
+    private Combattant winner;
+    private final String title;
 
-    public Match(String id, String date, String endroit, Combattant combattant1, Combattant combattant2) {
+    public Match(String id, LocalDateTime date, String location, TypeDeMatch type, Combattant fighter1, Combattant fighter2) {
+        if (type == null) {
+            throw new IllegalArgumentException("type de match doit specifier");
+        }
         this.id = id;
         this.date = date;
-        this.endroit = endroit;
-        this.combattant1 = combattant1;
-        this.combattant2 = combattant2;
+        this.location = location;
+        this.type = type;
+        this.fighter1 = fighter1;
+        this.fighter2 = fighter2;
+        this.fighter1Points = 0;
+        this.fighter2Points = 0;
+        this.isFinished = false;
+        this.winner = null;
+        this.title = type == TypeDeMatch.TITRE ? "titre de champion" : null;
     }
 
-    public String getId() {
-        return id;
+    public void addPoints(Combattant fighter, int points) {
+        if (isFinished) {
+            throw new IllegalStateException("ne peut pas ajouter des points");
+        }
+        if (Objects.equals(fighter.getId(), fighter1.getId())) {
+            fighter1Points += points;
+        } else if (Objects.equals(fighter.getId(), fighter2.getId())) {
+            fighter2Points += points;
+        } else {
+            throw new IllegalArgumentException("combattant introuvable");
+        }
     }
-    public void setId(String id) {
-        this.id = id;
+
+    public void finish() {
+        if (isFinished) {
+            throw new IllegalStateException("Match terminer");
+        }
+        isFinished = true;
+
+        if (fighter1Points > fighter2Points) {
+            winner = fighter1;
+        } else if (fighter2Points > fighter1Points) {
+            winner = fighter2;
+        }
+
+        if (type != TypeDeMatch.AMICAL) {
+            if (winner == fighter1) {
+                fighter1.updateRecord(true, false);
+                fighter2.updateRecord(false, false);
+            } else if (winner == fighter2) {
+                fighter2.updateRecord(true, false);
+                fighter1.updateRecord(false, false);
+            } else {
+                fighter1.updateRecord(false, true);
+                fighter2.updateRecord(false, true);
+            }
+
+            if (type == TypeDeMatch.TITRE && winner != null) {
+                winner.addTitle(title);
+            }
+        }
     }
-    public String getDate() {
-        return date;
+
+    public Combattant getFighter1() {
+        return fighter1;
     }
-    public void setDate(String date) {
-        this.date = date;
+
+    public Combattant getFighter2() {
+        return fighter2;
     }
-    public String getEndroit() {
-        return endroit;
-    }
-    public void setEndroit(String endroit) {
-        this.endroit = endroit;
-    }
-    public Combattant getCombattant1() {
-        return combattant1;
-    }
-    public void setCombattant1(Combattant combattant1) {
-        this.combattant1 = combattant1;
-    }
-    public Combattant getCombattant2() {
-        return combattant2;
-    }
-    public void setCombattant2(Combattant combattant2) {
-        this.combattant2 = combattant2;
+
+    public Combattant getWinner() {
+        return winner;
     }
 }
